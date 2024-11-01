@@ -4,6 +4,8 @@ using System.IO.Compression;
 using System.Threading.Tasks;
 using Amazon.S3;
 using DiscUtils.Iso9660;
+using SeekableStream;
+using SeekableStream.S3;
 
 namespace SeekableS3Stream.Examples.ReadFirstLineOfZipInsideIso
 {
@@ -20,7 +22,8 @@ namespace SeekableS3Stream.Examples.ReadFirstLineOfZipInsideIso
         {
             var s3 = new AmazonS3Client();
 
-            using var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 128 * 1024, 12);
+            var range = new S3RangeStreamAccessor(s3, BUCKET, KEY);
+            using var stream = new CachingSeekableStream(range, 128 * 1024, 12);
             using var iso = new CDReader(stream, true);
             using var embedded = iso.OpenFile(ZIPNAME, FileMode.Open, FileAccess.Read);
             using var zip = new ZipArchive(embedded);

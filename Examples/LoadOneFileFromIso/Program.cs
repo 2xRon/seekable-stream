@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Amazon.S3;
 using DiscUtils.Iso9660;
+using SeekableStream;
+using SeekableStream.S3;
 
 namespace SeekableS3Stream.Examples.LoadOneFileFromIso
 {
@@ -15,7 +17,8 @@ namespace SeekableS3Stream.Examples.LoadOneFileFromIso
         {
             var s3 = new AmazonS3Client();
 
-            using var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 1 * 1024 * 1024, 4);
+            var range = new S3RangeStreamAccessor(s3, BUCKET, KEY);
+            using var stream = new CachingSeekableStream(range, 1 * 1024 * 1024, 4);
             using var iso = new CDReader(stream, true);
             using var file = iso.OpenFile(FILENAME, FileMode.Open, FileAccess.Read);
             using var reader = new StreamReader(file);

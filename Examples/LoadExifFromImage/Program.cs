@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3;
 using MetadataExtractor;
+using SeekableStream;
+using SeekableStream.S3;
 
 namespace SeekableS3Stream.Examples.LoadExifFromImage
 {
@@ -22,7 +24,8 @@ namespace SeekableS3Stream.Examples.LoadExifFromImage
             long read = 0L; 
             foreach (var image in images.S3Objects.Where(o => o.Key.EndsWith(".jpg")).Take(10)) {
                 size += image.Size;
-                using var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, image.Key, 16 * 1024, 8);
+                var range = new S3RangeStreamAccessor(s3, BUCKET, image.Key);
+                using var stream = new CachingSeekableStream(range, 16 * 1024, 8);
                 var directories = ImageMetadataReader.ReadMetadata(stream);
                 read = stream.TotalRead;
                 loaded += stream.TotalLoaded;

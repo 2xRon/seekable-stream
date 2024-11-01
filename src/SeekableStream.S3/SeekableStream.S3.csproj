@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+		<PackageId>SeekableStream.S3</PackageId>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="../../Readme.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AWSSDK.S3" Version="3.7.405.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\SeekableStream\SeekableStream.csproj" />
+	</ItemGroup>
+
+</Project>

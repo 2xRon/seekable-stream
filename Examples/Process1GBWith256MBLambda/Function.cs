@@ -6,6 +6,8 @@ using System.Diagnostics;
 using Amazon.Lambda.Core;
 using Amazon.S3;
 using DiscUtils.Iso9660;
+using SeekableStream.S3;
+using SeekableStream;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -32,7 +34,8 @@ namespace Process1GBWith256MBLambda
             timer.Start();
 
             context.Logger.LogLine($"{timer.Elapsed}: Getting started.");
-            using var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 12 * 1024 * 1024, 5);
+            var range = new S3RangeStreamAccessor(s3, BUCKET, KEY);
+            using var stream = new CachingSeekableStream(range, 12 * 1024 * 1024, 5);
             using var iso = new CDReader(stream, true);
             using var embedded = iso.OpenFile(ZIPNAME, FileMode.Open, FileAccess.Read);
             using var zip = new ZipArchive(embedded, ZipArchiveMode.Read);

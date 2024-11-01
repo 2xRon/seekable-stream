@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Parquet;
 using Parquet.Data;
+using SeekableStream;
+using SeekableStream.S3;
 
 namespace SeekableS3Stream.Examples.LoadSchemaFromParquet
 {
@@ -15,7 +17,8 @@ namespace SeekableS3Stream.Examples.LoadSchemaFromParquet
         {
             var s3 = new AmazonS3Client();
 
-            using var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 1 * 1024 * 1024, 4);
+            var range = new S3RangeStreamAccessor(s3, BUCKET, KEY);
+            using var stream = new CachingSeekableStream(range, 1 * 1024 * 1024, 4);
             using var parquet = await ParquetReader.CreateAsync(stream);
             var fields = parquet.Schema.GetDataFields();
 
